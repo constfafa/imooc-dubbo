@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 @Service("buyService")
 public class CulsterServiceImpl implements CulsterService {
-	
+
+	// test git test03
 	final static Logger log = LoggerFactory.getLogger(CulsterServiceImpl.class);
 	
 	@Autowired
