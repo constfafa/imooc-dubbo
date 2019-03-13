@@ -1,6 +1,7 @@
 package com.imooc.web.service.impl;
 
 import com.imooc.curator.utils.DistriutedLock;
+import com.imooc.curator.utils.InnerDistriutedLock;
 import com.imooc.item.service.ItemsService;
 import com.imooc.order.service.OrdersService;
 import com.imooc.web.service.CulsterService;
@@ -22,6 +23,9 @@ public class CulsterServiceImpl implements CulsterService {
 
 	@Autowired
 	private DistriutedLock distriutedLock;
+
+	@Autowired
+	private InnerDistriutedLock innerDistriutedLock;
 	
 	@Override
 	public void doBuyItem(String itemId) {
@@ -36,7 +40,8 @@ public class CulsterServiceImpl implements CulsterService {
 	public boolean displayBuy(String itemId) {
 
 		// 执行业务流程之前使得当前业务获得分布式锁
-		distriutedLock.getLock();
+//		distriutedLock.getLock();
+		innerDistriutedLock.getLock();
 
 		int buyCounts = 6;
 
@@ -45,7 +50,8 @@ public class CulsterServiceImpl implements CulsterService {
 		if (stockCounts < buyCounts) {
 			log.info("库存剩余{}件，用户需求量{}件，库存不足，订单创建失败...", 
 					stockCounts, buyCounts);
-			distriutedLock.releaseLock();
+//			distriutedLock.releaseLock();
+			innerDistriutedLock.releaseLock();
 			return false;
 		}
 		
@@ -57,7 +63,8 @@ public class CulsterServiceImpl implements CulsterService {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			distriutedLock.releaseLock();
+//			distriutedLock.releaseLock();
+			innerDistriutedLock.releaseLock();
 		}
 
 		// 3. 创建订单成功后，扣除库存
@@ -66,12 +73,14 @@ public class CulsterServiceImpl implements CulsterService {
 			itemService.displayReduceCounts(itemId, buyCounts);
 		} else {
 			log.info("订单创建失败...");
-			distriutedLock.releaseLock();
+//			distriutedLock.releaseLock();
+			innerDistriutedLock.releaseLock();
 			return false;
 		}
 
 		// 释放锁 让下一个请求获取锁
-		distriutedLock.releaseLock();
+//		distriutedLock.releaseLock();
+		innerDistriutedLock.releaseLock();
 		return true;
 	}
 	
