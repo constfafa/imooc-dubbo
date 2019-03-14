@@ -9,6 +9,8 @@ imooc zookeeper course, dubbo + zookeeper demo
 
 #### 安装教程
 
+changliang-boe add
+
 1. xxxx
 2. xxxx
 3. xxxx
